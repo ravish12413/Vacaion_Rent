@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  Active
+  Inactive
+}
+
+enum PropertyType {
+  Apartment
+  House
+  Unique_Homes
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+model Host {
+  id       String     @id @default(uuid())
+  name     String
+  email    String     @unique
+  password String
+  status   Status     @default(Active)
+  about    String
+  since    DateTime   @default(now())
+  Property Property[]
+}
+
+model Property {
+  id            String       @id @default(uuid())
+  title         String
+  city          String
+  state         String
+  address       String
+  img_url       String
+  pincode       String
+  property_type PropertyType
+  host_id       String
+  host          Host         @relation(fields: [host_id], references: [id])
+  Booking       Booking[]
+}
+
+model Guest {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  password String
+  gender   Gender
+  dob      DateTime
+  bio      String
+  Booking  Booking[]
+}
+
+model Booking {
+  id          String   @id @default(uuid())
+  property_id String
+  property    Property @relation(fields: [property_id], references: [id])
+  guest_id    String
+  guest       Guest    @relation(fields: [guest_id], references: [id])
+  start_date  DateTime
+  end_date    DateTime
+}
